@@ -1,17 +1,28 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 
-import { Banner, CreatorCard, NFTCard } from '../components'
-
-import images from '../assets'
+import { NFTContext } from '../context/NFTContext';
+import { Banner, CreatorCard, NFTCard } from '../components';
+import images from '../assets';
 import { makeId } from '../utils/makeId';
 
 const Home = () => {
+  const { fetchNFTs } = useContext(NFTContext);
   const [hideButtons, setHideButtons] = useState(false);
+  const [nfts, setNfts] = useState([]);
   const { theme } = useTheme();
   const parentRef = useRef(null);
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    fetchNFTs()
+      .then((items ) => {
+        setNfts(items);
+
+        console.log(items);
+      });
+  }, []);
 
   const handleScroll = (direction) => {
     const { current } = scrollRef;
@@ -77,8 +88,8 @@ const Home = () => {
                       src={images.left}
                       layout="fill"
                       objectFit='contain'
-                      alt='left_arrow'
-                      className={theme === 'light' && 'filter invert'}
+                      alt='left_arrow'                      
+                      className={theme === 'light' ? 'filter invert' : undefined}
                     />
                   </div>
                   <div onClick={() => handleScroll('right')} className='absolute w-8 h-8 minlg:w-12 minlg:h-12 top-45 cursor-pointer right-0'>
@@ -87,7 +98,7 @@ const Home = () => {
                       layout="fill"
                       objectFit='contain'
                       alt='right_arrow'
-                      className={theme === 'light' && 'filter invert'}
+                      className={theme === 'light' ? 'filter invert' : undefined}
                     />
                   </div>
                 </>
@@ -103,7 +114,8 @@ const Home = () => {
                   <div>SearchBar</div>
                 </div>
                 <div className='mt-3 w-full flex flex-wrap justify-start md:justify-center'>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                  {nfts.map((nft) => <NFTCard key={nft.tokenId} nft={nft} />)}
+                  {/* {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
                     <NFTCard
                       key={`nft-${i}`}
                       nft={{
@@ -115,7 +127,7 @@ const Home = () => {
                         description: 'Cool NFT on Sale',
                       }}
                     />
-                  ))}
+                  ))} */}
                 </div>
         </div>
       </div>    
