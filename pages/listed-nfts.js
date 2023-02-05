@@ -1,4 +1,4 @@
-import {useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 
 import { NFTContext } from '../context/NFTContext';
 import { Loader, NFTCard } from '../components';
@@ -10,7 +10,7 @@ const ListedNFTs = () => {
 
   useEffect(() => {
     fetchMyNFTsOrListedNFTs('fetchItemsListed')
-      .then((items ) => {
+      .then((items) => {
         setNfts(items);
         setIsLoading(false);
       });
@@ -21,7 +21,7 @@ const ListedNFTs = () => {
       <div className="flexStart min-h-screen">
         <Loader />
       </div>
-    )    
+    )
   }
 
   if (!isLoading && nfts.length === 0) {
@@ -29,7 +29,7 @@ const ListedNFTs = () => {
       <div className="flexCenter sm:p-4 p-16 min-h-screen">
         <h1 className='font-poppins dark:text-white text-nft-black-1 text-3xl font-extrabold'>No NFTs Listed for Sale</h1>
       </div>
-    )    
+    )
   }
 
   return (
@@ -42,8 +42,8 @@ const ListedNFTs = () => {
             {nfts.map((nft) => <NFTCard key={nft.tokenId} nft={nft} />)}
           </div>
         </div>
-      </div>      
-    </div>    
+      </div>
+    </div>
   );
 };
 

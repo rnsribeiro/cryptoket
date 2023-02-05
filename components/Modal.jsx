@@ -1,17 +1,17 @@
-import { useRef} from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 
 import images from '../assets';
 
-const Modal = ({ header, body, footer, handleClose}) => {
+const Modal = ({ header, body, footer, handleClose }) => {
     const modalRef = useRef(null);
     const { theme } = useTheme();
 
     const handleClickOutSide = (e) => {
         if (modalRef.current && !modalRef.current.contains(e.target)) {
             handleClose();
-        }         
+        }
     }
 
     return (
@@ -22,8 +22,8 @@ const Modal = ({ header, body, footer, handleClose}) => {
                     <div className="relative w-3 h-3 minlg:w-6 minlg:h-6 
                     cursor-pointer" onClick={handleClose}>
                         <Image src={images.cross}
-                        layout="fill"
-                        className={theme === 'light' && 'filter invert'} />
+                            layout="fill"
+                            className={theme === 'light' ? 'filter invert' : ''} />
                     </div>
                 </div>
 

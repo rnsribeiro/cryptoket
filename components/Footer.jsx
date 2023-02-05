@@ -24,7 +24,7 @@ const Footer = () => {
                 <div className='flexStart flex-1 flex-col'>
                     <div className='flexCenter cursor-pointer'>
                         <Image src={images.logo02}
-                        objectFit="contain" width={32} height={32} alt="logo" />
+                            objectFit="contain" width={32} height={32} alt="logo" />
                         <p className='dark:text-white text-nft-black-1
                                         font-semibold text-lg ml-1'>CryptoKet</p>
                     </div>
@@ -33,14 +33,14 @@ const Footer = () => {
                     <div className='flexBetween md:w-full minlg:w-557 w-357 mt-6
                         dark:bg-nft-black-2 bg-white border dark:border-nft-black-2
                         border-nft-gray-2 rounded-md'>
-                            <input type="email" placeholder="Your Email"
+                        <input type="email" placeholder="Your Email"
                             className='h-full flex-1 w-full 
                             dark:bg-nft-black-2 bg-white px-4 rounded-md 
                             dark:text-white text-nft-black-1 font-normal 
                             text-xs minlg:text-lg outline-none' />
-                            <div className='flex-initial'>
-                                <Button btnName="Email me" classStyles="rounded-md" />
-                            </div>
+                        <div className='flex-initial'>
+                            <Button btnName="Email me" classStyles="rounded-md" />
+                        </div>
                     </div>
                 </div>
 
@@ -57,19 +57,19 @@ const Footer = () => {
                         font-semibold text-base'>Cryptoket, Inc, All Rights Reserved.</p>
                     <div className='flex flex-row sm:mt-4'>
                         {[images.instagram, images.twitter, images.telegram, images.discord].map
-                        ((image, index) => (
-                        <div className='mx-2 cursor-pointer' key={index}>
-                            <Image 
-                                src={image}
-                                objectFit="contain"
-                                width={24}
-                                height={24}
-                                alt="social"
-                                className={theme === 'light' ? 'filter invert' : undefined }
-                            />
-                        </div>
-                    ))}
-                    </div>                    
+                            ((image, index) => (
+                                <div className='mx-2 cursor-pointer' key={index}>
+                                    <Image
+                                        src={image}
+                                        objectFit="contain"
+                                        width={24}
+                                        height={24}
+                                        alt="social"
+                                        className={theme === 'light' ? 'filter invert' : ''}
+                                    />
+                                </div>
+                            ))}
+                    </div>
                 </div>
             </div>
         </footer>
