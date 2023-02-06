@@ -6,7 +6,18 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 
 import { MarketAddress, MarketAddressABI } from "./constants";
 
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/ipfs/v0');
+const projectId = process.env.NEXT_PUBLIC_IPFS_PROJECT_ID;
+const projectSecret = process.env.NEXT_PUBLIC_API_KEY_SECRET;
+const auth = `Basic ${Buffer.from(`${projectId}:${projectSecret}`).toString('base64')}`;
+
+const client = ipfsHttpClient({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth,
+    },
+});
 
 const fetchContract = (signerOrProvider) => new ethers.Contract(MarketAddress, MarketAddressABI,
     signerOrProvider);
@@ -45,12 +56,16 @@ export const NFTProvider = ({ children }) => {
     };
 
     const uploadToIPFS = async (file) => {
+        const subdomain = 'https://criptoket.infura-ipfs.io';
         try {
             const added = await client.add({ content: file });
 
-            const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+            const url = `${subdomain}/ipfs/${added.path}`;
+            
+            console.log(url);
 
             return url;
+
 
         } catch (error) {
             console.log('Error uploading file to IPFS');
@@ -58,6 +73,8 @@ export const NFTProvider = ({ children }) => {
     };
 
     const createNFT = async (formInput, fileUrl, router) => {
+        const subdomain = 'https://criptoket.infura-ipfs.io';
+
         const { name, description, price } = formInput;
 
         if (!name || !description || !price || !fileUrl) return;
@@ -67,7 +84,7 @@ export const NFTProvider = ({ children }) => {
         try {
             const added = await client.add(data);
 
-            const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+            const url = `${subdomain}/ipfs/${added.path}`;
 
             await createSale(url, price);
 
