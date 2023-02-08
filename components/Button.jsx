@@ -5,7 +5,7 @@ const Button = ({ btnName, classStyles, btnType, handleClick }) => (
   <button
     type="button"
     className={
-        btnType === 'primary' ? `${primaryBtn} ${classStyles}` : `${outlineBtn} ${classStyles}`
+      btnType === 'primary' ? `${primaryBtn} ${classStyles}` : `${outlineBtn} ${classStyles}`
     }
     onClick={handleClick}
   >

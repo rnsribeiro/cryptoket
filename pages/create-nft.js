@@ -29,7 +29,7 @@ const CreateItem = () => {
   const { theme } = useTheme();
 
   const uploadToInfura = async (file) => {
-    
+
 
     try {
       const subdomain = 'https://criptoket.infura-ipfs.io';
