@@ -1,9 +1,6 @@
-const nextConfig = {
-  reactStrictMode: true,  
+module.exports = {
+  reactStrictMode: true,
   images: {
-      domains: ['criptoket.infura-ipfs.io', 'infura-ipfs.io'],
+    domains: ['criptoket.infura-ipfs.io', 'ipfs.infura.io'],
   },
-
 };
-
-module.exports = nextConfig;

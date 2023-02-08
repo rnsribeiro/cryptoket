@@ -16,9 +16,9 @@ const Marketplace = ({ Component, pageProps }) => (
         <Footer />
       </div>
 
-      <Script src="https://kit.fontawesome.com/7955880019.js" crossOrigin="anonymous" />
+      <Script src="https://kit.fontawesome.com/d45b25ceeb.js" crossorigin="anonymous" />
     </ThemeProvider>
   </NFTProvider>
-)
+);
 
 export default Marketplace;

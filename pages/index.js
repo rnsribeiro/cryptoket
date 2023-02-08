@@ -8,6 +8,7 @@ import { getCreators } from '../utils/getTopCreators';
 import { shortenAddress } from '../utils/shortenAddress';
 import images from '../assets';
 import { makeid } from '../utils/makeId';
+
 const Home = () => {
   const { fetchNFTs } = useContext(NFTContext);
   const [nfts, setNfts] = useState([]);
@@ -137,10 +138,10 @@ const Home = () => {
                   {!hideButtons && (
                     <>
                       <div onClick={() => handleScroll('left')} className="absolute w-8 h-8 minlg:w-12 minlg:h-12 top-45 cursor-pointer left-0">
-                        <Image src={images.left} layout="fill" objectFit="contain" alt="left_arrow" className={theme === 'light' ? 'filter invert' : ''} />
+                        <Image src={images.left} layout="fill" objectFit="contain" alt="left_arrow" className={theme === 'light' ? 'filter invert' : undefined} />
                       </div>
                       <div onClick={() => handleScroll('right')} className="absolute w-8 h-8 minlg:w-12 minlg:h-12 top-45 cursor-pointer right-0">
-                        <Image src={images.right} layout="fill" objectFit="contain" alt="left_arrow" className={theme === 'light' ? 'filter invert' : ''} />
+                        <Image src={images.right} layout="fill" objectFit="contain" alt="left_arrow" className={theme === 'light' ? 'filter invert' : undefined} />
                       </div>
                     </>
                   )}
@@ -170,7 +171,7 @@ const Home = () => {
                       description: 'Cool NFT on Sale',
                     }}
                   />
-                ))} */};
+                ))} */}
               </div>
             </div>
           </>

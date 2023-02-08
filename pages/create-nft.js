@@ -4,23 +4,28 @@ import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
+
 import { NFTContext } from '../context/NFTContext';
 import { Button, Input, Loader } from '../components';
 import images from '../assets';
 
 const projectId = process.env.NEXT_PUBLIC_IPFS_PROJECT_ID;
 const projectSecret = process.env.NEXT_PUBLIC_API_KEY_SECRET;
-
 const auth = `Basic ${Buffer.from(`${projectId}:${projectSecret}`).toString('base64')}`;
-
-const client = ipfsHttpClient({
-  host: 'ipfs.infura.io',
-  port: 5001,
-  protocol: 'https',
-  headers: {
-    authorization: auth,
+const client = ipfsHttpClient(
+  {
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+      authorization: auth,
+    },
   },
-});
+);
+
+console.log(projectId);
+console.log(projectSecret);
+console.log(auth);
 
 const CreateItem = () => {
   const { createSale, isLoadingNFT } = useContext(NFTContext);
@@ -28,11 +33,8 @@ const CreateItem = () => {
   const { theme } = useTheme();
 
   const uploadToInfura = async (file) => {
-
-
     try {
       const subdomain = 'https://criptoket.infura-ipfs.io';
-
       const added = await client.add({ content: file });
 
       const url = `${subdomain}/ipfs/${added.path}`;
@@ -111,7 +113,7 @@ const CreateItem = () => {
                     height={100}
                     objectFit="contain"
                     alt="file upload"
-                    className={theme === 'light' ? 'filter invert' : ''}
+                    className={theme === 'light' ? 'filter invert' : undefined}
                   />
                 </div>
 
