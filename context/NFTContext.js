@@ -1,207 +1,120 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react';
 import Web3Modal from 'web3modal';
-import { ethers } from "ethers";
-import axios from "axios";
-import { create as ipfsHttpClient } from "ipfs-http-client";
+import { ethers } from 'ethers';
+import axios from 'axios';
 
-import { MarketAddress, MarketAddressABI } from "./constants";
-
-const projectId = process.env.NEXT_PUBLIC_IPFS_PROJECT_ID;
-const projectSecret = process.env.NEXT_PUBLIC_API_KEY_SECRET;
-const auth = `Basic ${Buffer.from(`${projectId}:${projectSecret}`).toString('base64')}`;
-
-const client = ipfsHttpClient({
-    host: 'ipfs.infura.io',
-    port: 5001,
-    protocol: 'https',
-    headers: {
-        authorization: auth,
-    },
-});
-
-const fetchContract = (signerOrProvider) => new ethers.Contract(MarketAddress, MarketAddressABI,
-    signerOrProvider);
+import { MarketAddress, MarketAddressABI } from './constants';
 
 export const NFTContext = React.createContext();
 
+const fetchContract = (signerOrProvider) => new ethers.Contract(MarketAddress, MarketAddressABI, signerOrProvider);
+
 export const NFTProvider = ({ children }) => {
-    const [currentAccount, setCurrentAccount] = useState('');
-    const [isLoadingNFT, setIsLoadingNFT] = useState(false);
-    const nftCurrency = 'ETH';
+  const nftCurrency = 'ETH';
+  const [currentAccount, setCurrentAccount] = useState('');
+  const [isLoadingNFT, setIsLoadingNFT] = useState(false);
 
-    const checkIfWalletIsConnected = async () => {
-        if (!window.ethereum) return alert('Please install MetaMask!');
+  const fetchNFTs = async () => {
+    setIsLoadingNFT(false);
 
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    const provider = new ethers.providers.JsonRpcProvider();
+    const contract = fetchContract(provider);
 
-        if (accounts.length) {
-            setCurrentAccount(accounts[0]);
-        } else {
-            console.log('No accounts found.');
-        }
-    };
+    const data = await contract.fetchMarketItems();
 
-    useEffect(() => {
-        checkIfWalletIsConnected();
-    }, []);
+    const items = await Promise.all(data.map(async ({ tokenId, seller, owner, price: unformattedPrice }) => {
+      const tokenURI = await contract.tokenURI(tokenId);
+      const { data: { image, name, description } } = await axios.get(tokenURI);
+      const price = ethers.utils.formatUnits(unformattedPrice.toString(), 'ether');
 
-    const connectWallet = async () => {
-        if (!window.ethereum) return alert('Please install MetaMask!');
+      return { price, tokenId: tokenId.toNumber(), id: tokenId.toNumber(), seller, owner, image, name, description, tokenURI };
+    }));
 
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    return items;
+  };
 
-        setCurrentAccount(accounts[0]);
+  const fetchMyNFTsOrCreatedNFTs = async (type) => {
+    setIsLoadingNFT(false);
 
-        window.location.reload();
-    };
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
 
-    const uploadToIPFS = async (file) => {
-        const subdomain = 'https://criptoket.infura-ipfs.io';
-        try {
-            const added = await client.add({ content: file });
+    const contract = fetchContract(signer);
+    const data = type === 'fetchItemsListed' ? await contract.fetchItemsListed() : await contract.fetchMyNFTs();
 
-            const url = `${subdomain}/ipfs/${added.path}`;
-            
-            console.log(url);
+    const items = await Promise.all(data.map(async ({ tokenId, seller, owner, price: unformattedPrice }) => {
+      const tokenURI = await contract.tokenURI(tokenId);
+      const { data: { image, name, description } } = await axios.get(tokenURI);
+      const price = ethers.utils.formatUnits(unformattedPrice.toString(), 'ether');
 
-            return url;
+      return { price, tokenId: tokenId.toNumber(), seller, owner, image, name, description, tokenURI };
+    }));
 
+    return items;
+  };
 
-        } catch (error) {
-            console.log('Error uploading file to IPFS');
-        }
-    };
+  const createSale = async (url, formInputPrice, isReselling, id) => {
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
 
-    const createNFT = async (formInput, fileUrl, router) => {
-        const subdomain = 'https://criptoket.infura-ipfs.io';
+    const price = ethers.utils.parseUnits(formInputPrice, 'ether');
+    const contract = fetchContract(signer);
+    const listingPrice = await contract.getListingPrice();
 
-        const { name, description, price } = formInput;
+    const transaction = !isReselling
+      ? await contract.createToken(url, price, { value: listingPrice.toString() })
+      : await contract.resellToken(id, price, { value: listingPrice.toString() });
 
-        if (!name || !description || !price || !fileUrl) return;
+    setIsLoadingNFT(true);
+    await transaction.wait();
+  };
 
-        const data = JSON.stringify({ name, description, image: fileUrl });
+  const buyNft = async (nft) => {
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(MarketAddress, MarketAddressABI, signer);
 
-        try {
-            const added = await client.add(data);
+    const price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
+    const transaction = await contract.createMarketSale(nft.tokenId, { value: price });
+    setIsLoadingNFT(true);
+    await transaction.wait();
+    setIsLoadingNFT(false);
+  };
 
-            const url = `${subdomain}/ipfs/${added.path}`;
+  const connectWallet = async () => {
+    if (!window.ethereum) return alert('Please install MetaMask.');
 
-            await createSale(url, price);
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-            router.push('/');
+    setCurrentAccount(accounts[0]);
+    window.location.reload();
+  };
 
-        } catch (error) {
-            console.log(error);
-            console.log('Error uploading file to IPFS');
-        }
+  const checkIfWalletIsConnect = async () => {
+    if (!window.ethereum) return alert('Please install MetaMask.');
+
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+
+    if (accounts.length) {
+      setCurrentAccount(accounts[0]);
+    } else {
+      console.log('No accounts found');
     }
+  };
 
-    const createSale = async (url, formInputPrice, isReselling, id) => {
-        const web3Modal = new Web3Modal();
-        const connection = await web3Modal.connect();
-        const provider = new ethers.providers.Web3Provider(connection);
-        const signer = provider.getSigner();
+  useEffect(() => {
+    checkIfWalletIsConnect();
+  }, []);
 
-        // 0.25
-        const price = ethers.utils.parseUnits(formInputPrice, 'ether');
-        const contract = fetchContract(signer);
-        const listingPrice = await contract.getListingPrice();
-
-        const transaction = !isReselling
-            ? await contract.createToken(url, price, { value: listingPrice.toString() })
-            : await contract.createToken(id, price, { value: listingPrice.toString() })
-
-        setIsLoadingNFT(true);
-        await transaction.wait();
-    }
-
-    const fetchNFTs = async () => {
-        setIsLoadingNFT(false);
-
-        const provider = new ethers.providers.JsonRpcProvider();
-        const contract = fetchContract(provider);
-
-        const data = await contract.fetchMarketItems();
-
-        const items = await Promise.all(data.map(async ({ tokenId, seller, owner, price: unformattedPrice }
-        ) => {
-            const tokenURI = await contract.tokenURI(tokenId);
-            const { data: { image, name, description } } = await axios.get(tokenURI);
-            const price = ethers.utils.formatUnits(unformattedPrice.toString(), 'ether');
-
-            return {
-                price,
-                tokenId: tokenId.toNumber(),
-                seller,
-                owner,
-                image,
-                name,
-                description,
-                tokenURI
-            }
-        }));
-
-        return items;
-    }
-
-    const fetchMyNFTsOrListedNFTs = async (type) => {
-        setIsLoadingNFT(false);
-
-        const web3Modal = new Web3Modal();
-        const connection = await web3Modal.connect();
-        const provider = new ethers.providers.Web3Provider(connection);
-        const signer = provider.getSigner();
-
-        const contract = fetchContract(signer);
-
-        const data = type === 'fetchItemsListed'
-            ? await contract.fetchItemsListed()
-            : await contract.fetchMyNFTs();
-
-        const items = await Promise.all(data.map(async ({ tokenId, seller, owner, price: unformattedPrice }
-        ) => {
-            const tokenURI = await contract.tokenURI(tokenId);
-            const { data: { image, name, description } } = await axios.get(tokenURI);
-            const price = ethers.utils.formatUnits(unformattedPrice.toString(), 'ether');
-
-            return {
-                price,
-                tokenId: tokenId.toNumber(),
-                seller,
-                owner,
-                image,
-                name,
-                description,
-                tokenURI
-            }
-        }));
-
-        return items;
-    };
-
-    const buyNFT = async (nft) => {
-        const web3Modal = new Web3Modal();
-        const connection = await web3Modal.connect();
-        const provider = new ethers.providers.Web3Provider(connection);
-        const signer = provider.getSigner();
-
-        const contract = fetchContract(signer);
-
-        const price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
-
-        const transaction = await contract.createMarketSale(nft.tokenId, { value: price });
-
-        setIsLoadingNFT(true);
-        await transaction.wait();
-        setIsLoadingNFT(false);
-    }
-
-    return (
-        <NFTContext.Provider value={{
-            nftCurrency, connectWallet, currentAccount, uploadToIPFS, createNFT,
-            fetchNFTs, fetchMyNFTsOrListedNFTs, buyNFT, createSale, isLoadingNFT
-        }}>
-            {children}
-        </NFTContext.Provider>
-    )
+  return (
+    <NFTContext.Provider value={{ nftCurrency, buyNft, createSale, fetchNFTs, fetchMyNFTsOrCreatedNFTs, connectWallet, currentAccount, isLoadingNFT }}>
+      {children}
+    </NFTContext.Provider>
+  );
 };
