@@ -4,7 +4,6 @@ import { useRouter } from 'next/router';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
-
 import { NFTContext } from '../context/NFTContext';
 import { Button, Input, Loader } from '../components';
 import images from '../assets';
@@ -39,9 +38,6 @@ const CreateItem = () => {
       const url = `${subdomain}/ipfs/${added.path}`;
 
       setFileUrl(url);
-
-      console.log(url);
-
     } catch (error) {
       console.log('Error uploading file: ', error);
     }
