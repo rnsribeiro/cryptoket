@@ -8,7 +8,6 @@ import { getCreators } from '../utils/getTopCreators';
 import { shortenAddress } from '../utils/shortenAddress';
 import images from '../assets';
 import { makeid } from '../utils/makeId';
-
 const Home = () => {
   const { fetchNFTs } = useContext(NFTContext);
   const [nfts, setNfts] = useState([]);
@@ -171,7 +170,7 @@ const Home = () => {
                       description: 'Cool NFT on Sale',
                     }}
                   />
-                ))} */}
+                ))} */};
               </div>
             </div>
           </>
