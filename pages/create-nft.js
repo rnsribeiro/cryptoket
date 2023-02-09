@@ -9,8 +9,8 @@ import { NFTContext } from '../context/NFTContext';
 import { Button, Input, Loader } from '../components';
 import images from '../assets';
 
-const projectId = process.env.NEXT_PUBLIC_IPFS_PROJECT_ID;
-const projectSecret = process.env.NEXT_PUBLIC_API_KEY_SECRET;
+const projectId = process.env.REACT_APP_PROJECT_ID;
+const projectSecret = process.env.REACT_APP_KEY_SECRET;
 const auth = `Basic ${Buffer.from(`${projectId}:${projectSecret}`).toString('base64')}`;
 const client = ipfsHttpClient(
   {
@@ -22,10 +22,6 @@ const client = ipfsHttpClient(
     },
   },
 );
-
-console.log(projectId);
-console.log(projectSecret);
-console.log(auth);
 
 const CreateItem = () => {
   const { createSale, isLoadingNFT } = useContext(NFTContext);
