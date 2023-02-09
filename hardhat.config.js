@@ -7,16 +7,16 @@ const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 const GOERLI_PRIVATE_KEY = process.env.NEXT_PUBLIC_GOERLI_PRIVATE_KEY;
 
 module.exports = {
+  defaultNetwork: "goerli",
   networks: {
     hardhat: {
-      chainId: 1337,
     },
-    mumbai: {
-      url: 'https://rpc-mumbai.maticvigil.com',
-      accounts: [privateKey],
-    },
+    // mumbai: {
+    //   url: 'https://rpc-mumbai.maticvigil.com',
+    //   accounts: [privateKey],
+    // },
     goerli: {
-      url: `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      url: "https://eth-goerli.g.alchemy.com/v2/3aw7QWIWMUW9I4bt-8BiiIvcDSooqgZW",
       accounts: [GOERLI_PRIVATE_KEY]
     },
     // rinkeby: {
