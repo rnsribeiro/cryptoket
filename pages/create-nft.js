@@ -47,7 +47,7 @@ const CreateItem = () => {
 
   const { getRootProps, getInputProps, isDragActive, isDragAccept, isDragReject } = useDropzone({
     onDrop,
-    accept: 'image/*',
+    accept: 'image/*,application/pdf',
     maxSize: 5000000,
   });
 
@@ -120,10 +120,7 @@ const CreateItem = () => {
             {fileUrl && (
               <aside>
                 <div>
-                  <img
-                    src={fileUrl}
-                    alt="Asset_file"
-                  />
+                  <a href={fileUrl} target="_blank" rel="noreferrer">{fileUrl}</a>
                 </div>
               </aside>
             )}
