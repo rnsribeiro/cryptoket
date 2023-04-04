@@ -74,10 +74,11 @@ const AssetDetails = () => {
   return (
     <div className="relative flex justify-center md:flex-col min-h-screen">
       <div className="relative flex-1 flexCenter sm:px-4 p-12 border-r md:border-r-0 md:border-b dark:border-nft-black-1 border-nft-gray-1">
-        <div className="relative w-557 minmd:w-2/3 minmd:h-2/3 sm:w-full sm:h-300 h-557 ">
-          <a href={nft.image} target="_blank" rel="noreferrer">
-            <Image src={nft.image || images[`nft${nft.i}`]} objectFit="cover" className=" rounded-xl shadow-lg" layout="fill" />
-          </a>
+        <div className="relative flexCenter w-557 minmd:w-2/3 minmd:h-2/3 sm:w-full sm:h-300 h-557 ">
+          <Image src={nft.image || images[`nft${nft.i}`]} objectFit="cover" className=" rounded-xl shadow-lg" layout="fill" />
+        </div>
+        <div>
+          <a href={nft.image} target="_blank" rel="noreferrer">{nft.image}</a>
         </div>
       </div>
 
